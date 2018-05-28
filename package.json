@@ -22,9 +22,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
-    "mongo-seeding": "^2.0.4",
-    "mongoose": "^4.12.1",
-    "mongoose-seed": "^0.4.1"
+    "mongoose": "^4.12.1"
   },
   "engines": {
     "node": "6.11.4"
