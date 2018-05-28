@@ -6,11 +6,19 @@ const path = require('path');
 const config = require('./config/database');
 const cors = require('cors');
 const stores = require('./routes/stores');
+var seeder = require('mongoose-seed');
+let file = require('./seeds/bTask.json')
+var mongodb = require('mongodb')
+var MongoClient = mongodb.MongoClient;
+
+
+
 
 // Connect To Database
 mongoose.connect(config.database, {
   useMongoClient: true
 });
+
 // On Connection
 mongoose.connection.on('connected', () => {
   console.log('Connected to database ' + config.database);
@@ -42,6 +50,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', stores);
+
+
+
+
+
 
 //Starting The Server
 app.listen(port, () => {

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Store = require('../models/store');
+var db = require('../db.js');
+var seeder = require('../dbSeed.js');
 
 
 // get an instance of the router for api routes
@@ -12,76 +14,46 @@ apiRoutes.get('/', (req, res, next) => {
   res.send('Invalid Endpoint, Try a different one ');
 });
 
-// Home Endpoint
-apiRoutes.post('/createstore', (req, res, next) => {
-  if (req.body.name === undefined || req.body.address === undefined || req.body.logoPath === undefined)
-    return res.json({ success: false, msg: 'Error in store creation' })
-  else {
-    let newStore = new Store({
-      name: req.body.name,
-      address: req.body.address,
-      logoPath: req.body.logoPath
-    })
-
-    Store.addStore(newStore)
-
-    return res.json({ success: true, msg: 'Store Created', newStore });
-
-  }
-});
 
 
 // viewStores Endpoint
 apiRoutes.get('/viewStores', (req, res, next) => {
-  Store.find({}, function (err, stores) {
-    let storeMap = [];
-
-    stores.forEach(function (store) {
-      storeMap.push(store.name)
-    });
-
-    res.send(storeMap);
+  db.connect(function(cb)
+        {
+            if(cb == true)
+            {
+                db.getProducts(function(content)
+                {
+                console.log(content)
+                var jsonContent = JSON.parse(content);
+                res.send(jsonContent);
+                });
+            }   
+        });
   });
 
-});
 
 
-// viewStore Endpoint
-apiRoutes.get('/viewStores/:id', (req, res, next) => {
-  // console.log(req.params);
-  Store.getUserById(req.params.id, (err, store) => {
-    if (store)
-      return res.json({ success: true, msg: 'Store Found', store });
-
-    if (err | !store) {
-      return res.json({ success: false, msg: 'Store not found' });
-    }
-  });
-});
-
-
-// updateStore Endpoint
-apiRoutes.put('/updateStore/:id', (req, res, next) => {
-  if (req.body.name === undefined || req.body.address === undefined || req.body.logoPath === undefined)
-    return res.json({ success: false, msg: 'You Must Enter all the data for the request body' })
-
-  Store.findOneAndUpdate({ "_id": req.params.id },
-    {
-      $set:
+apiRoutes.get('/db/seed', function(req, res) {
+  seeder.seed(function(cb)
+  {
+      if(cb == true)
       {
-        name: req.body.name,
-        address: req.body.address,
-        logoPath: req.body.logoPath
+          res.send("Database Seeded!");
       }
-    },
-    { new: true },
-    (err, user) => {
-      if (err)
-        return res.json({ message: "Error in updating the store!" });
-      else {
-        return res.json({ success: "true", message: "Store Updated" });
+      if(cb == false)
+      {
+          res.send("Error Seeding Database!");
       }
-    })
-});
+  });
+});      
+
+    /* DELETE DB */
+    apiRoutes.get('/db/delete', function(req, res) {
+      db.clearDB(function(cb){
+          console.log(cb);
+      });
+  });   
+
 
 module.exports = apiRoutes;
